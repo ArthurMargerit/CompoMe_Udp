@@ -10,7 +10,8 @@
       - i32 port
     PORT:
       - IN
-    SWIG: true
+    OPTIONS:
+      SWIG: true
 
 - LINK:
     NAME: CompoMe::Posix::Udp_client_out
@@ -21,4 +22,5 @@
       - CompoMe::String to_interface
     PORT:
       - OUT
-    SWIG: true
+    OPTIONS:
+      SWIG: true
