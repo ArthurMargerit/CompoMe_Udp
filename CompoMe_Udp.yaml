@@ -1,4 +1,5 @@
 - IMPORT: CompoMe.yaml
+- IMPORT: CompoMe_Port.yaml
 - IMPORT: CompoMe_Log.yaml
 - IMPORT: CompoMe_Swig.yaml
 - IMPORT: CompoMe_Tools.yaml
@@ -9,7 +10,8 @@
       - CompoMe::String addr
       - i32 port
     PORT:
-      - IN
+      - CompoMe::Stream::in main
+      - CompoMe::Stream::map_in many
     OPTIONS:
       SWIG: true
 
@@ -18,9 +20,8 @@
     DATA:
       - CompoMe::String addr
       - i32 port
-      - CompoMe::String to_component
-      - CompoMe::String to_interface
     PORT:
-      - OUT
+      - CompoMe::Stream::out main
+      - CompoMe::Stream::map_out many
     OPTIONS:
       SWIG: true
