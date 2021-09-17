@@ -45,13 +45,14 @@ void Udp_server_in::step() {
 
   buffer[n] = '\0';
   C_INFO_TAG("udp,server,call", "Call: ", buffer, " from ");
-  auto result = CompoMe::Tools::call(
-      this->get_main().get_interface().get_caller_stream(), buffer);
-  
+
+  auto result = (buffer[0] == '/') ? this->get_many().call(buffer)
+                                   : this->get_main().call(buffer);
+
   C_INFO_TAG("udp,server,call", "Respond : ", result.second);
 
-  sendto(this->sockfd, (result.second.size()) ? result.second.c_str() : " ",
-         (result.second.size()) ? result.second.size() : 1, 0,
+  sendto(this->sockfd, (result.second.str.size()) ? result.second.str.c_str() : " ",
+         (result.second.str.size()) ? result.second.str.size() : 1, 0,
          (sockaddr *)&cliaddr, len);
 }
 

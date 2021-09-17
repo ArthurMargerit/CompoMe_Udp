@@ -81,6 +81,10 @@ void Udp_client_out::one_connect(CompoMe::Require_helper &p_r,
 
   nc.fss.set_func_send([this, p_key](CompoMe::String_d &d) {
 
+    if (p_key.str.size() != 0) {
+      d.str = p_key.str + "." + d.str;
+    }
+
     auto r = send(this->sockfd, d.str.c_str(), d.str.size(), 0);
     if (r == -1) {
       C_ERROR_TAG("http,client,send", "Send Error : ", strerror(errno));
