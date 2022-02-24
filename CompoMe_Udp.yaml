@@ -7,9 +7,9 @@
 - LINK:
     NAME: CompoMe::Posix::Udp_server_in
     DATA:
-      - CompoMe::String addr
-      - i32 port
-      - ui32 poll_time
+      - CompoMe::String addr WITH "127.0.0.1"
+      - i32 port WITH "8080"
+      - ui32 poll_time WITH 1000
     PORT:
       - CompoMe::Stream::in main
       - CompoMe::Stream::map_in many

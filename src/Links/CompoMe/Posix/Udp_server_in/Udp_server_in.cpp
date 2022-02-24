@@ -22,7 +22,7 @@ namespace CompoMe {
 namespace Posix {
 
 Udp_server_in::Udp_server_in()
-  : CompoMe::Link(), main(), many(), addr("127.0.0.1"), port(8080) {
+  : CompoMe::Link(), main(), many(), addr("127.0.0.1"), port(8080),poll_time(1000) {
   this->main.set_link(*this);
   this->many.set_link(*this);
 }
@@ -44,6 +44,7 @@ void Udp_server_in::step() {
   l_poll_fd.revents = 0;
 
   int ret = poll(&l_poll_fd, 1, this->get_poll_time());
+
   if (ret == 0) {
     return;
   }
