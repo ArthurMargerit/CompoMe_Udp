@@ -20,6 +20,15 @@ void Udp_server_in::set_port(const i32 p_port) { this->port = p_port; }
 
 i32 &Udp_server_in::a_port() { return this->port; }
 //--------------------------------------------------------------------------
+//============================= poll_time =============================
+ui32 Udp_server_in::get_poll_time() const { return this->poll_time; }
+
+void Udp_server_in::set_poll_time(const ui32 p_poll_time) {
+  this->poll_time = p_poll_time;
+}
+
+ui32 &Udp_server_in::a_poll_time() { return this->poll_time; }
+//--------------------------------------------------------------------------
 
 // Get Port /////////////////////////////////////////////////////////////
 

@@ -9,6 +9,7 @@
     DATA:
       - CompoMe::String addr
       - i32 port
+      - ui32 poll_time
     PORT:
       - CompoMe::Stream::in main
       - CompoMe::Stream::map_in many

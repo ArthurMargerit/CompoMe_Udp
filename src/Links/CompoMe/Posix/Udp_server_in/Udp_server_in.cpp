@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <poll.h>
 
 #define MAXLINE 1024
 
@@ -21,7 +22,7 @@ namespace CompoMe {
 namespace Posix {
 
 Udp_server_in::Udp_server_in()
-    : CompoMe::Link(), main(), many(), addr("127.0.0.1"), port(8080) {
+  : CompoMe::Link(), main(), many(), addr("127.0.0.1"), port(8080) {
   this->main.set_link(*this);
   this->many.set_link(*this);
 }
@@ -35,6 +36,17 @@ void Udp_server_in::step() {
 
   struct sockaddr_in cliaddr;
   unsigned int len = sizeof(cliaddr);
+
+  struct pollfd l_poll_fd;
+
+  l_poll_fd.fd = this->sockfd;
+  l_poll_fd.events = POLLIN | POLLERR | POLLHUP;
+  l_poll_fd.revents = 0;
+
+  int ret = poll(&l_poll_fd, 1, this->get_poll_time());
+  if (ret == 0) {
+    return;
+  }
 
   auto n = recvfrom(this->sockfd, buffer, MAXLINE, MSG_WAITALL,
                     (sockaddr *)&cliaddr, &len);

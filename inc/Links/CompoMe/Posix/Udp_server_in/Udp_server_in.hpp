@@ -9,6 +9,8 @@
 #include "Types/CompoMe/String.hpp"
 
 #include "Types/i32.hpp"
+
+#include "Types/ui32.hpp"
 // STRUCT
 
 // PORT
@@ -46,6 +48,9 @@ public:
   i32 get_port() const;
   void set_port(const i32 port);
   i32 &a_port();
+  ui32 get_poll_time() const;
+  void set_poll_time(const ui32 poll_time);
+  ui32 &a_poll_time();
 
   // Get Port /////////////////////////////////////////////////////////////
 
@@ -60,7 +65,7 @@ private:
   // DATA ////////////////////////////////////////////////////////////////////
   CompoMe::String addr;
   i32 port;
-
+  ui32 poll_time;
   i32 sockfd;
 
   // PORT ////////////////////////////////////////////////////////////////////
