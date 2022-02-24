@@ -48,24 +48,26 @@ void Udp_server_in::step() {
     return;
   }
 
-  auto n = recvfrom(this->sockfd, buffer, MAXLINE, MSG_WAITALL,
-                    (sockaddr *)&cliaddr, &len);
+  while(true) {
+    auto n = recvfrom(this->sockfd, buffer, MAXLINE, MSG_WAITALL,
+                      (sockaddr *)&cliaddr, &len);
 
-  if (n == -1) {
-    return;
+    if (n == -1) {
+      break;
+    }
+
+    buffer[n] = '\0';
+    C_INFO_TAG("udp,server,call", "Call: ", buffer, " from ");
+
+    auto result = (buffer[0] == '/') ? this->get_many().call(buffer)
+      : this->get_main().call(buffer);
+
+    C_INFO_TAG("udp,server,call", "Respond : ", result.second);
+
+    sendto(this->sockfd, (result.second.str.size()) ? result.second.str.c_str() : " ",
+           (result.second.str.size()) ? result.second.str.size() : 1, 0,
+           (sockaddr *)&cliaddr, len);
   }
-
-  buffer[n] = '\0';
-  C_INFO_TAG("udp,server,call", "Call: ", buffer, " from ");
-
-  auto result = (buffer[0] == '/') ? this->get_many().call(buffer)
-                                   : this->get_main().call(buffer);
-
-  C_INFO_TAG("udp,server,call", "Respond : ", result.second);
-
-  sendto(this->sockfd, (result.second.str.size()) ? result.second.str.c_str() : " ",
-         (result.second.str.size()) ? result.second.str.size() : 1, 0,
-         (sockaddr *)&cliaddr, len);
 }
 
 void Udp_server_in::main_connect() {
