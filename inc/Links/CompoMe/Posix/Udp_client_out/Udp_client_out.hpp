@@ -33,6 +33,8 @@ public:
   void main_connect() override;
   void main_disconnect() override;
 
+  bool is_connected();
+
   // one connect
   void one_connect(CompoMe::Require_helper &, CompoMe::String c) override;
   void one_connect(CompoMe::Interface &, CompoMe::String) override;
@@ -42,7 +44,6 @@ public:
   void one_disconnect(CompoMe::Interface &, CompoMe::String) override;
 
   // Get and set /////////////////////////////////////////////////////////////
-
   CompoMe::String get_addr() const;
   void set_addr(const CompoMe::String addr);
   CompoMe::String &a_addr();
@@ -66,7 +67,7 @@ private:
   // DATA ////////////////////////////////////////////////////////////////////
   CompoMe::String addr;
   i32 port;
-  
+
   // PORT ////////////////////////////////////////////////////////////////////
   CompoMe::Stream::out main;
   CompoMe::Stream::map_out many;

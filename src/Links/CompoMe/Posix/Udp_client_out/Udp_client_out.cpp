@@ -1,3 +1,4 @@
+
 #include "Links/CompoMe/Posix/Udp_client_out/Udp_client_out.hpp"
 #include "CompoMe/Log.hpp"
 #include "Interfaces/Interface.hpp"
@@ -10,6 +11,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+
+
 namespace CompoMe {
 
 namespace Posix {
@@ -19,6 +22,13 @@ Udp_client_out::Udp_client_out()
       sockfd(-1) {
   this->main.set_link(*this);
   this->many.set_link(*this);
+}
+
+bool Udp_client_out::is_connected() {
+  int optval = 0;
+  socklen_t optlen = sizeof(optval);
+  int res = getsockopt(this->sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen);
+  return optval == 0 && res == 0;
 }
 
 Udp_client_out::~Udp_client_out() { this->main_disconnect(); }
@@ -87,7 +97,7 @@ void Udp_client_out::one_connect(CompoMe::Require_helper &p_r,
 
     auto r = send(this->sockfd, d.str.c_str(), d.str.size(), 0);
     if (r == -1) {
-      C_ERROR_TAG("http,client,send", "Send Error : ", strerror(errno));
+      C_ERROR_TAG("udp,client,send", "Send Error : ", strerror(errno));
       this->main_disconnect();
       throw "connection Error";
     }
@@ -99,13 +109,13 @@ void Udp_client_out::one_connect(CompoMe::Require_helper &p_r,
     char l_buffer[1024 + 2];
     auto e = read(this->sockfd, l_buffer, 1024);
     if (e == -1) {
-      C_ERROR_TAG("http,client", "Receive error");
+      C_ERROR_TAG("udp,client", "Receive error");
       this->main_disconnect();
       return false;
     }
 
     if (e == 0) {
-      C_ERROR_TAG("http,client", "Socket close");
+      C_ERROR_TAG("udp,client", "Socket close");
       this->main_disconnect();
       return false;
     }
