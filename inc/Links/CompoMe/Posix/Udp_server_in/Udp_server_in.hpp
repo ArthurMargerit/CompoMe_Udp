@@ -52,6 +52,9 @@ public:
   void set_poll_time(const ui32 poll_time);
   ui32 &a_poll_time();
 
+  void set_size_max_message(const ui32 size_max_message);
+  ui32 get_size_max_message();
+
   // Get Port /////////////////////////////////////////////////////////////
 
   CompoMe::Stream::in &get_main();
@@ -67,6 +70,8 @@ private:
   i32 port;
   ui32 poll_time;
   i32 sockfd;
+  ui32 size_max_message;
+  char *buff;
 
   // PORT ////////////////////////////////////////////////////////////////////
   CompoMe::Stream::in main;
