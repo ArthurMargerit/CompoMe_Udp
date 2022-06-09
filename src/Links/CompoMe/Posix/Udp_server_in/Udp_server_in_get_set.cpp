@@ -30,11 +30,11 @@ void Udp_server_in::set_poll_time(const ui32 p_poll_time) {
 ui32 &Udp_server_in::a_poll_time() { return this->poll_time; }
 //--------------------------------------------------------------------------
 
-void Udp_server_in::set_size_max_message(const ui32 size_max_message) {
+void Udp_server_in::set_size_max_message(const ui32 p_size_max_message) {
   this->size_max_message = p_size_max_message;
 }
 
-ui32 Udp_server_in::get_size_max_message() { return p_size_max_message; }
+ui32 Udp_server_in::get_size_max_message() { return this->size_max_message; }
 
 // Get Port /////////////////////////////////////////////////////////////
 

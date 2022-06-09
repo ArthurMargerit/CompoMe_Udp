@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string>
 
 #define DEFAULT_ADDR ("127.0.0.1")
 #define DEFAULT_PORT (8080)
@@ -53,8 +54,8 @@ void Udp_server_in::step() {
   }
 
   while (true) {
-    auto n = recvfrom(this->sockfd, buff, MAXLINE, MSG_WAITALL,
-                      (sockaddr *)&cliaddr, &len);
+    auto n = recvfrom(this->sockfd, buff, this->get_size_max_message(),
+                      MSG_WAITALL, (sockaddr *)&cliaddr, &len);
 
     if (n == -1) {
       break;
@@ -107,8 +108,7 @@ void Udp_server_in::main_connect() {
     free(this->buff);
   }
 
-  this->buff = malloc(this->size_max_message + 1);
-}
+  this->buff = (char *)malloc(sizeof(char) * this->size_max_message + 1);
 }
 
 void Udp_server_in::main_disconnect() {
