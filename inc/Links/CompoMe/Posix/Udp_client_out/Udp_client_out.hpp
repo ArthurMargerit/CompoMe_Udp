@@ -13,12 +13,12 @@
 #include "Types/i32.hpp"
 // STRUCT
 
-
 // PORT
 
 #include "Ports/CompoMe/Stream/out.hpp"
 
 #include "Ports/CompoMe/Stream/map_out.hpp"
+#include <map>
 
 namespace CompoMe {
 
@@ -51,8 +51,10 @@ public:
   void set_port(const i32 port);
   i32 &a_port();
 
-  // Get Port /////////////////////////////////////////////////////////////
+  void set_size_max_message(const ui32 size_max_message);
+  ui32 get_size_max_message();
 
+  // Get Port /////////////////////////////////////////////////////////////
   CompoMe::Stream::out &get_main();
   CompoMe::Stream::map_out &get_many();
 
@@ -67,6 +69,9 @@ private:
   // DATA ////////////////////////////////////////////////////////////////////
   CompoMe::String addr;
   i32 port;
+
+  ui32 size_max_message;
+  char *buffer;
 
   // PORT ////////////////////////////////////////////////////////////////////
   CompoMe::Stream::out main;
