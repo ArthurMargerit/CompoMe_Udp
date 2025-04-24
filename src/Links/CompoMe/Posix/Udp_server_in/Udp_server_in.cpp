@@ -15,10 +15,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string>
+#include <iostream>
 
 #define DEFAULT_ADDR ("127.0.0.1")
 #define DEFAULT_PORT (8080)
-#define DEFAULT_MAX_SIZE (1024)
+#define DEFAULT_MAX_SIZE (4096)
 #define DEFAULT_POLL_TIME (10)
 
 namespace CompoMe {
@@ -37,42 +38,80 @@ Udp_server_in::~Udp_server_in() {}
 
 void Udp_server_in::step() {
   Link::step();
-
+ 
   struct sockaddr_in cliaddr;
   unsigned int len = sizeof(cliaddr);
-
+ 
   struct pollfd l_poll_fd;
-
+ 
   l_poll_fd.fd = this->sockfd;
   l_poll_fd.events = POLLIN | POLLERR | POLLHUP;
   l_poll_fd.revents = 0;
-
+ 
   int ret = poll(&l_poll_fd, 1, this->get_poll_time());
-
+ 
   if (ret == 0) {
+    C_ERROR_TAG("poll 0");
     return;
   }
-
+ 
   while (true) {
     auto n = recvfrom(this->sockfd, buff, this->get_size_max_message(),
                       MSG_WAITALL, (sockaddr *)&cliaddr, &len);
-
+ 
     if (n == -1) {
       break;
     }
-
+ 
     buff[n] = '\0';
-    C_INFO_TAG("udp,server,call", "Call: ", buff, " from ");
-
+    C_INFO_TAG("udp,server,call: Call:", buff, " from ");
+ 
     auto result = (buff[0] == '/') ? this->get_many().call(buff)
                                    : this->get_main().call(buff);
+ 
+    C_INFO_TAG("udp,server,call: Respond : ", result.second);
+ 
+    
+    size_t max_message_size = this->get_size_max_message();
+    std::string &response = result.second.str;
+    size_t total_size = response.size();
+    size_t sent_size = 0;
+    char l_save_char_under_limiter = 0;
+ 
+    // If we have nothing to send, we send a space to avoid the client to wait for a timeout
+    if (total_size == 0)
+    {
+      C_INFO_TAG("udp,server,call: Empty response, nothing to send.");
+      sendto(this->sockfd,
+                " ",
+                1, 0,
+                (sockaddr *)&cliaddr, len);
+      break;
+    }
+ 
+    do {
+      size_t chunk_size = std::min(max_message_size, (total_size - sent_size));
+ 
+      // If the message is chunked, we had a # and we save the last character that is not sent
+      if(chunk_size == max_message_size && (total_size - sent_size) > max_message_size)
+      {
+        l_save_char_under_limiter = response.at(chunk_size - 1);
+        response.at(sent_size + chunk_size - 1) = '#';
+      }
+ 
+      sendto(this->sockfd, (response.c_str() + sent_size), chunk_size, 0,
+              (sockaddr *)&cliaddr, len);
+ 
+      // If the message is not complete, set the saved character again in the buffer and update the sent size
+      if (chunk_size == max_message_size && (total_size - sent_size) > max_message_size) {
+        response.at(sent_size + chunk_size - 1) = l_save_char_under_limiter;
+        sent_size += (chunk_size - 1); 
+      }
+      else {
+        sent_size += chunk_size;
+      }
 
-    C_INFO_TAG("udp,server,call", "Respond : ", result.second);
-
-    sendto(this->sockfd,
-           (result.second.str.size()) ? result.second.str.c_str() : " ",
-           (result.second.str.size()) ? result.second.str.size() : 1, 0,
-           (sockaddr *)&cliaddr, len);
+    } while (sent_size < total_size);
   }
 }
 

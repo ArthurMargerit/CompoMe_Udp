@@ -1,4 +1,3 @@
-
 #include "Links/CompoMe/Posix/Udp_client_out/Udp_client_out.hpp"
 #include "CompoMe/Log.hpp"
 #include "Interfaces/Interface.hpp"
@@ -118,29 +117,45 @@ void Udp_client_out::one_connect(CompoMe::Require_helper &p_r,
     return true;
   });
 
-  nc.rss.set_func_recv([this](CompoMe::String_d &d) {
-    // char l_buffer[+2];
-    auto e = read(this->sockfd, this->buffer, this->size_max_message);
+nc.rss.set_func_recv([this](CompoMe::String_d &d) {
+  int iOffset = 0;
+  bool is_fragmented = false;
+
+  // Loop if buffer == size_max_message
+  do {
+    auto e = read(this->sockfd, (this->buffer + iOffset), (this->size_max_message - iOffset));
+
     if (e == -1) {
-      C_ERROR_TAG("udp,client", "Receive error");
+      C_ERROR_TAG("udp,client Receive error");
       this->main_disconnect();
       return false;
     }
 
     if (e == 0) {
-      C_ERROR_TAG("udp,client", "Socket close");
+      C_ERROR_TAG("udp,client Socket close");
       this->main_disconnect();
       return false;
     }
 
-    this->buffer[e] = ' ';
-    this->buffer[e + 1] = '\0';
+    iOffset += e;
+    
+    // Check if the last character is '#' and if so, consider the message as fragmented
+    if (this->buffer[iOffset - 1] == '#') {
+      is_fragmented = true;
+      iOffset--;
+    }
+    else {
+      is_fragmented = false;
+    }
+  } while (is_fragmented);
 
-    std::string str(this->buffer);
-    d.str = str;
-
-    return true;
-  });
+  this->buffer[iOffset] = '\0';
+  
+  std::string str(this->buffer);
+  d.str = str;
+  
+  return true;
+});
 
   nc.f = p_r.fake_stream_it(nc.fss, nc.rss);
 }
