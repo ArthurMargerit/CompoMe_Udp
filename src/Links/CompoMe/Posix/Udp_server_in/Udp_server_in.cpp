@@ -19,9 +19,8 @@
 
 #define DEFAULT_ADDR ("127.0.0.1")
 #define DEFAULT_PORT (8080)
-#define DEFAULT_MAX_SIZE (1024)
+#define DEFAULT_MAX_SIZE (4096)
 #define DEFAULT_POLL_TIME (10)
-#define MAX_UDP_MSG_SIZE (65500)
 
 namespace CompoMe {
 
@@ -73,7 +72,7 @@ void Udp_server_in::step() {
     C_INFO_TAG("udp,server,call: Respond : ", result.second);
  
     
-    size_t max_message_size = MAX_UDP_MSG_SIZE;
+    size_t max_message_size = this->get_size_max_message();
     std::string &response = result.second.str;
     size_t total_size = response.size();
     size_t sent_size = 0;
